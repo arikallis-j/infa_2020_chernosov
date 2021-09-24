@@ -1,5 +1,2 @@
 # infa_2020_chernosov
-HHSHSHSHHHSASAHSHAHSHAH
-okdokodcodc
-wodkpwdpwlp
-ojojojoj
+Лаба 4 - 4номер
