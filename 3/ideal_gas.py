@@ -1,82 +1,133 @@
-import random as r
-import math as m
-import turtle as t
-import time as tm
-t.shape('turtle')
+import turtle as tt
+from random import *
 
+def soft_check(n, x, r):
+        #создаёт множество пар - номера отрезков пересекающихся отрезков с центром х и длиной 2r
+        segment = []
+        for i in range(n):
+                seg = (x[i]-r[i], x[i]+r[i], i)
+                segment.append(seg)
+        segment.sort()
+    
+        intersect = set()
+        for i in range(n-1):
+                k=i+1
+                while (k<n and segment[i][1]>segment[k][0]):
+                        intersect.add((min(segment[i][2], segment[k][2]), max(segment[i][2], segment[k][2])))
+                        k+=1
+        return intersect
 
-class trl:
-	def __init__(self):
-		super(trl, self).__init__()
-		self.turtle = t.Turtle(shape='turtle')
-		self.x = A*(r.random()-0.5)
-		self.y = A*(r.random()-0.5)
-		self.vx = V*(r.random()-0.5)
-		self.vy = V*(r.random()-0.5)
+def strict_check(intersect, n, r, x, y):
+	#оставляет только действительно пересекающиеся окружности
+	collisions = set()
+	for pair in intersect:
+		i = pair[0]
+		k = pair[1]
+		if ((x[i]-x[k])**2 + (y[i]-y[k])**2 < (r[i]+r[k])**2):
+			collisions.add((min(i, k), max(i, k)))
+	return collisions
 
-		self.turtle.penup()
-		self.turtle.goto(self.x,self.y)
+def calc_coll_gas(collision, n, m, x, y, vx, vy,):
+	#вычисляет скорости частиц после столкновений между собой
+	for pair in collision:
+		x1 = x[pair[0]]
+		y1 = y[pair[0]]
+		vx1 = vx[pair[0]]
+		vy1 = vy[pair[0]]
+		x2 = x[pair[1]]
+		y2 = y[pair[1]]
+		vx2 = vx[pair[1]]
+		vy2 = vy[pair[1]]
+		factor1 = (vx2-vx1)*(x2-x1) + (vy2-vy1)*(y2-y1)
+		if (factor1 < 0):
+			factor2  = 2*factor1/((m[pair[0]]+m[pair[1]]) * ((x2-x1)**2 + (y2-y1)**2))
+			vx[pair[0]]+=m[pair[1]]*factor2*(x2-x1)
+			vy[pair[0]]+=m[pair[1]]*factor2*(y2-y1)
+			vx[pair[1]]+=m[pair[0]]*factor2*(x1-x2)
+			vy[pair[1]]+=m[pair[0]]*factor2*(y1-y2)
 
+def calc_coll_walls(width, height, n, r, x, y, vx, vy):
+	#обрабатывает столкновения со стенами
+	for i in range(n):
+		if (vx[i]>0 and x[i]+r[i]>width/2):
+			vx[i]*=-1.0
+		if vy[i]>0 and y[i]+r[i]>height/2:
+			vy[i]*=-1.0
+		if vx[i]<0 and x[i]-r[i]<-width/2:
+			vx[i]*=-1.0
+		if vy[i]<0 and y[i]-r[i]<-height/2:
+			vy[i]*=-1.0
 
-	def move(self, dt):
-		self.x = self.x + dt*self.vx
-		self.y = self.y + dt*self.vy
-		self.turtle.goto(self.x,self.y)
+def calc_iter(n, x, y, vx, vy, dt, g):
+	#обрабатывает итерацию движения частиц за dt
+	for i in range(n):
+		x[i]+=vx[i]*dt
+		y[i]+=vy[i]*dt-g*dt**2/2
+		vy[i]-=g*dt
 
+def drawgas(n, gas, x, y):
+	# перемещает изображения частиц
+	for i in range(n):
+		gas[i].goto(x[i], y[i])
 
-def chech(turtle):
-	for i in range(N):
-		x0 = TRL[i].x
-		y0 = TRL[i].y
-		vx0 = TRL[i].vx
-		vy0 = TRL[i].vy
-		for j in range(N):
-			if i==j:
-				pass
-			else:
-				x1 = TRL[j].x
-				y1 = TRL[j].y
-				vx1 = TRL[j].vx
-				vy1 = TRL[j].vy
-				r = ((x1-x0)**2 + (y1-y0)**2)**0.5
-				CH = ((R-r)>0)
-				if CH:
-					pass
+#константы
+n = 10
+width = 400.0
+height = 400.0
+dt = 1
+total_iter = 5000
+g = 0.1
+a = 1
+b = 1
+#рисование коробки
+god = tt.Turtle(shape='turtle')
+god.penup()
+god.left(90)
+god.speed(10)
+god.goto(-width/2, -height/2)
+god.pendown()
+god.goto(width/2, -height/2)
+god.goto(width/2, height/2)
+god.goto(-width/2, height/2)
+god.goto(-width/2, -height/2)
+god.hideturtle()
+god.penup()
+god.goto(0, height/1.8)
+#инициализация частиц газа
+r = [12.0] * n
+m =  [1.0] * n
+x = [0.0] * n
+y = [0.0] * n
+vx = [0.0] * n
+vy = [0.0] * n
+gas = []
+for i in range(n):
+    gas.append(tt.Turtle(shape='circle'))
+    gas[i].penup()
+    gas[i].speed(10)
+    vx[i] = (2.0*random()-1.0)*8.0
+    vy[i] = (2.0*random()-1.0)*8.0
 
-
-N = 500
-V = 5
-A = 800
-R = 5
-TRL = []
-dt = 10
-t.tracer(False)
-for k in range(N):
-	TRL.append(trl())
-t.tracer(True)
-while True:
-	t.tracer(False)
-	for k in range(N):
-		TRL[k].move(dt)
-	t.tracer(True)
-
-from random import randint
-import turtle
-
-
-number_of_turtles = 5
-steps_of_time_number = 1000
-
-
-pool = [turtle.Turtle(shape='turtle') for i in range(number_of_turtles)]
-for unit in pool:
-    unit.penup()
-    unit.speed(v)
-    unit.goto(randint(-A, A), randint(-A, A))
-
-
-while True:
-    for unit in pool:
-    	s = 50
-    	unit.forward(s*(r.random()-0.5))
-    	unit.left(360*(r.random()-0.5))
+vx_max = 8*2
+vx_plot = [0]*(2*vx_max+1)
+for i in range(total_iter): #осн цикл
+	god.showturtle()
+	intersect_x = soft_check(n, x, r)
+	intersect_y = soft_check(n, y, r)
+	intersect = intersect_x & intersect_y
+	collision = strict_check(intersect, n, r, x, y)
+	calc_coll_gas(collision, n, m, x, y, vx, vy,)
+	calc_coll_walls(width, height, n, r, x, y, vx, vy)
+	calc_iter(n, x, y, vx, vy, dt, g)
+	for k in range(n):
+		vx_plot[min(max(vx_max+round(vx[k]), 0), vx_max*2)]+=1
+	if i%50 == 0:
+		sigma=0
+		for k in range(2*vx_max+1):
+			sigma+=vx_plot[k]*(k-vx_max)**2
+		sigma/=n*(i+1)
+		print (vx_plot)
+		print(sigma)
+	god.hideturtle()
+	drawgas(n, gas, x, y)
+		
