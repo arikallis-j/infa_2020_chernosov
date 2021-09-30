@@ -5,78 +5,6 @@ import time as tm
 t.shape('turtle')
 
 
-###1
-"""
-t.color('red', 'red')
-s = 50
-a = 360
-while True:
-	t.forward(s*(r.random()-0.5))
-	t.left(a*(r.random()-0.5))
-"""
-
-
-###2
-"""
-t.color('blue', 'blue')
-r = 30
-x0,y0 = t.pos()
-t.penup()
-t.goto(x0 - 400,y0)
-t.pendown()
-N = (	(1,1,1,1,1,1,0,0,0),
-		(0,0,0,1,1,0,0,0,1),
-		(0,0,1,1,0,1,1,0,0),
-		(0,0,1,0,0,0,1,1,1),
-		(0,1,0,1,1,0,0,1,0),
-		(0,1,1,0,1,1,0,1,0),
-		(1,0,0,0,1,1,0,1,1),
-		(1,0,1,0,0,0,0,0,1),
-		(1,1,1,1,1,1,0,1,0),
-		(0,1,1,1,0,0,1,1,0),
-		(1,1,1,1,1,1,1,1,1),
-		(0,0,0,0,0,0,0,0,0),
-		(0,0,0,0,0,0,0,1,0)   )
-
-A = (0,90,90,0,90,135,225,135,315)
-def drawn(n):
-	b  =  str(n)
-	N = []
-	for k in range(len(b)):
-		N.append(b[k])
-	for i in range(len(N)):
-		if N[i]=='-':
-			draw(12)
-		elif N[i]==' ':
-			draw(11)
-		else:
-			draw(int(N[i]))
-def draw(n):
-	t.tracer(False)
-	x,y = t.pos()
-	NUM = N[n]
-	for k in range(9):
-		if NUM[k]!=0:
-			t.pendown()
-		else:
-			t.penup()
-
-		if k==6 or k==8:
-			t.forward(r*(2**0.5))
-		else:
-			t.forward(r)
-		t.right(A[k])
-	t.penup()
-	t.goto(x + 2*r,y)
-	t.pendown()
-	t.tracer(True)
-	tm.sleep(1)
-t.right(270)
-drawn("-502 345 535")
-"""
-
-
-###3
 class trl:
 	def __init__(self):
 		super(trl, self).__init__()
@@ -131,7 +59,7 @@ while True:
 	for k in range(N):
 		TRL[k].move(dt)
 	t.tracer(True)
-"""
+
 from random import randint
 import turtle
 
@@ -152,4 +80,3 @@ while True:
     	s = 50
     	unit.forward(s*(r.random()-0.5))
     	unit.left(360*(r.random()-0.5))
-"""
