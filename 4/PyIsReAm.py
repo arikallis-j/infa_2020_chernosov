@@ -5,7 +5,7 @@ pygame.init()
 
 FPS = 30
 A = 800
-bg = pygame.image.load("1.png")
+bg = pygame.image.load("2.png")
 
 screen = pygame.display.set_mode((2*A, A))
 screen.fill((255,255,255))
