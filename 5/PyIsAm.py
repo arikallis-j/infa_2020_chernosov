@@ -1,13 +1,14 @@
 import pygame
+import pygame
 from pygame.draw import *
 
 pygame.init()
 
 FPS = 30
 A = 800
-bg = pygame.image.load("2.png")
+bg = pygame.image.load("1.png")
 
-screen = pygame.display.set_mode((1000, 500))
+screen = pygame.display.set_mode((A, A))
 screen.fill((255,255,255))
 screen.blit(bg, (0, 0))
 
