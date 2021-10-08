@@ -16,6 +16,21 @@ win = pygame.display.set_mode((X_win,Y_win))
 pygame.display.set_caption("make-a-person")
 
 
+#загрузка изображений
+bg = pygame.image.load('images/bg.png')
+Parts = [pygame.image.load('images/body.png'),
+         pygame.image.load('images/head.png'),
+         pygame.image.load('images/hand.png'),
+         pygame.image.load('images/hair.png'),
+         pygame.image.load('images/mouth.png'),
+         pygame.image.load('images/nose.png'),
+         pygame.image.load('images/eye.png')]
+
+
+
+#функция отрисовки
+def drawWindow():
+    win.blit(bg, (0,0))
 
 run = True
 
@@ -26,9 +41,7 @@ while run:
     for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-
-
-    win.fill(back_color)
+    drawWindow()
 
 
     pygame.display.update()
