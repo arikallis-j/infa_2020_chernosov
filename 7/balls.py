@@ -17,17 +17,33 @@ CYAN = (0, 255, 255)
 BLACK = (0, 0, 0)
 COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
+widthLine = 3
+font = pygame.font.SysFont('serif', 36)
+
 count = 0
 aboard = 5
 N = 5
 
 BALLS = []
+def aboards():
+    pygame.draw.lines(win, 
+                      YELLOW, 
+                      True,
+                      [(aboard - widthLine, aboard - widthLine),
+                       (aboard - widthLine + B, aboard - widthLine),
+                       (aboard - widthLine + B, - aboard + widthLine + B),
+                       (aboard - widthLine, - aboard + widthLine + B)],
+                       width = widthLine)
+def table():
+    score_text = "Ваш счёт: " + str(count)
+    score = font.render(score_text, True, YELLOW)
+    win.blit(score, (B + aboard, 0))
 
 def create_ball():
     speed = 5
     r = randint(10, 100)
     alpha = randint(0, 360)
-    x = randint(r, A-r)
+    x = randint(r, B-r)
     y = randint(r, B-r)
     vx = round(speed*cos(alpha*pi/180))
     vy = round(speed*sin(alpha*pi/180))
@@ -52,7 +68,7 @@ def draw(obj):
 def move(obj):
     x,y = obj['xy']
     r = obj['r']
-    xwall = x < (aboard + r) or x > (A - aboard - r)
+    xwall = x < (aboard + r) or x > (B - aboard - r)
     ywall = y < (aboard + r) or y > (B - aboard - r)
     if xwall:
         obj['v'][0] = (-1)*obj['v'][0]
@@ -64,6 +80,8 @@ def move(obj):
 
 
 def dance():
+    aboards()
+    table()
     balls_full()
     for ball in BALLS:
         draw(ball)
@@ -78,23 +96,23 @@ def click():
         run = ( (x1-x)**2 + (y1-y)**2 - r**2 ) < 0
         if run:
             count += 1
-            print("Ваш счёт: " + str(count))
             BALLS.remove(ball)
 
 pygame.display.update()
 clock = pygame.time.Clock()
-finished = False
+run = True
 
-while not finished:
+while run:
     clock.tick(FPS)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            finished = True
+            run = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             click()
+    win.fill(BLACK)
     dance()    
 
     pygame.display.update()
-    win.fill(BLACK)
+    
 
 pygame.quit()
