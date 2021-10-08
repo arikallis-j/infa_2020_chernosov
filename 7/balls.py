@@ -17,12 +17,15 @@ CYAN = (0, 255, 255)
 BLACK = (0, 0, 0)
 COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
-widthLine = 3
-font = pygame.font.SysFont('serif', 50)
-
 count = 0
 aboard = 5
 paragraph = 50
+
+widthLine = 3
+font = pygame.font.SysFont('serif', paragraph)
+fontHead = pygame.font.SysFont('serif', 2*paragraph)
+
+RECORDS = []
 
 level = "hard"
 if level == "hard":
@@ -36,6 +39,9 @@ else:
 
 Nballs = 5
 Nboxes = 5
+maxCount = 100
+maxTime = 100
+WINING = False
 
 BALLS = []
 BOXES = []
@@ -60,18 +66,28 @@ def aboards():
     pygame.draw.lines(win, 
                       YELLOW, 
                       True,
-                      [(aboard - widthLine + B, 100),
-                       (aboard - widthLine + A, 100)],
+                      [(aboard - widthLine + B, 3*paragraph),
+                       (aboard - widthLine + A, 3*paragraph)],
                        width = widthLine)
 
 def table():
-    level_text = "Level: " + level
+    
     score_text = "Score: " + str(count)
+    time_text = "Time: " + str(round(maxTime*10 - time//100)/10) 
+    level_text = "Level: " + level
 
-    Score = font.render(score_text, True, YELLOW)
     Level = font.render(level_text, True, YELLOW)
-    win.blit(Score, (B + 2*aboard, 0))
-    win.blit(Level, (B + 2*aboard, paragraph))
+    Time = font.render(time_text, True, YELLOW)
+    Score = font.render(score_text, True, YELLOW)
+    RecordHard = font.render(RECORDS[0], True, YELLOW)
+    RecordNormal= font.render(RECORDS[1], True, YELLOW)
+    RecordEasy = font.render(RECORDS[2], True, YELLOW)
+    win.blit(Level, (B + 2*aboard, 0))
+    win.blit(Time, (B + 2*aboard, paragraph))
+    win.blit(Score, (B + 2*aboard, 2*paragraph))
+    win.blit(RecordHard, (B + 2*aboard, 3*paragraph + aboard))
+    win.blit(RecordNormal, (B + 2*aboard, 4*paragraph + 2*aboard))
+    win.blit(RecordEasy, (B + 2*aboard, 5*paragraph + 4*aboard))
 
 
 
@@ -179,21 +195,77 @@ def click():
             count += box['count']
             BOXES.remove(box)
 
+def Ending():
+    win.fill(BLACK)
+    run = False
+    recordEnd()
+    winning_text = fontHead.render("YOU ARE WINNING!", True, YELLOW)
+    gameover_text = fontHead.render("GAME OVER!", True, YELLOW)
+    yourrecord_text = fontHead.render("Your record: " + str(count), True, YELLOW)
+    if WINING==True:
+        win.blit(winning_text, (120, B//2 - 50))
+    else:
+        win.blit(gameover_text, (250, B//2 - 50))
+        win.blit(yourrecord_text, (250, B//2 + 2*paragraph - 50))
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+        pygame.display.update()
+
+def recordEnd():
+    f = open('RECORD.md','w')
+    if level=="hard":
+        RECORDS[0]= "hard: " + str(count)
+    if level=="normal":
+        RECORDS[0]= "normal: " + str(count)
+    if level=="easy":
+        RECORDS[0]= "easy: " + str(count)
+    for i in RECORDS:
+        f.write(i+"\n")
+    f.close()
+
+def recordStart():
+    global RECORDS
+    f = open('RECORD.md','r')
+    for line in f:
+        RECORDS.append(line)
+    f.close()
+    List = []
+    for line in RECORDS:
+        liness = ""
+        lines = list(line)
+        lines.remove('\n')
+        for i in lines:
+            liness += i
+        List.append(liness)
+    RECORDS = List
 pygame.display.update()
 clock = pygame.time.Clock()
+recordStart()
 run = True
 
 while run:
     clock.tick(FPS)
+    time = pygame.time.get_ticks()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             click()
     win.fill(BLACK)
-    dance()    
+    dance()
 
+    if count>=maxCount:
+        WINING = True
+        Ending()
+    elif time//1000>=maxTime:
+        WINING = False
+        Ending()
     pygame.display.update()
     
+
+
 
 pygame.quit()
