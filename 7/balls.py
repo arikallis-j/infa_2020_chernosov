@@ -19,7 +19,7 @@ COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
 count = 0
 aboard = 5
-N = 50
+N = 5
 
 BALLS = []
 
@@ -40,9 +40,8 @@ def create_ball():
             }
 
 def balls_full():
-    if len(BALLS)==0:
-        while len(BALLS)<N:
-            BALLS.append(create_ball())
+    while len(BALLS)<N:
+        BALLS.append(create_ball())
 
 def draw(obj):
     circle(win, 
@@ -73,10 +72,14 @@ def dance():
 def click():
     global count
     x1, y1 = event.pos
-    run = ( (x1-x)**2 + (y1-y)**2 - r**2 ) < 0
-    if run:
-        count += 1
-        print("Ваш счёт: " + str(count))
+    for ball in BALLS:
+        x,y = ball['xy']
+        r = ball['r']
+        run = ( (x1-x)**2 + (y1-y)**2 - r**2 ) < 0
+        if run:
+            count += 1
+            print("Ваш счёт: " + str(count))
+            BALLS.remove(ball)
 
 pygame.display.update()
 clock = pygame.time.Clock()
