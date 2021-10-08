@@ -15,6 +15,9 @@ CYAN = (0, 255, 255)
 BLACK = (0, 0, 0)
 COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
+count = 0
+
+
 def new_ball():
     global x, y, r
     x = randint(100, 1100)
@@ -24,10 +27,12 @@ def new_ball():
     circle(screen, color, (x, y), r)
 
 def click():
+    global count
     x1, y1 = event.pos
     run = ( (x1-x)**2 + (y1-y)**2 - r**2 ) < 0
     if run:
-        print('Click!')
+        count += 1
+        print("Ваш счёт: " + str(count))
 
 pygame.display.update()
 clock = pygame.time.Clock()
