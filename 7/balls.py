@@ -7,6 +7,9 @@ pygame.init()
 FPS = 120
 A, B = 1200, 900
 win = pygame.display.set_mode((A,B))
+pygame.display.set_caption("GAME THE BALLS")
+pygame.mixer.music.load("sound.oga")
+pygame.mixer.music.play()
 
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
@@ -264,8 +267,6 @@ while run:
         WINING = False
         Ending()
     pygame.display.update()
-    
-
 
 
 pygame.quit()
