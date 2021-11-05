@@ -18,18 +18,23 @@ CYAN = 0x00FFCC
 BLACK = (0, 0, 0)
 WHITE = 0xFFFFFF
 GREY = 0x7D7D7D
-GAME_COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
-BALLS_COLOR = [BLUE, YELLOW, GREEN, MAGENTA, CYAN]
-
+SAND = 0xFCDD76
+BROWN = 0x801818
+GAME_COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN, SAND]
+BALLS_COLOR = [BROWN]
+TARGET_COLOR = GREEN
 WIDTH = 800
 HEIGHT = 600
+ABOARD = 50
+R_BALL, R_GUN = 5, 10
 
 G = 1
 N_target = 2
 X0, Y0 = WIDTH//2, HEIGHT//2
+gun_x, gun_y = ABOARD, HEIGHT - 3*ABOARD
 
 class Ball:
-    def __init__(self, screen: pygame.Surface, x=40, y=450):
+    def __init__(self, screen: pygame.Surface, x=gun_x, y=gun_y):
         """ Конструктор класса ball
 
         Args:
@@ -39,7 +44,7 @@ class Ball:
         self.screen = screen
         self.x = x
         self.y = y
-        self.r = 10
+        self.r = R_BALL
         self.vx = 0
         self.vy = 0
         self.color = choice(BALLS_COLOR)
@@ -54,7 +59,7 @@ class Ball:
         """
         if self.x>(WIDTH - 2*self.r - 2) or self.x<(2*self.r + 2):
             self.vx *= -1
-        if self.y>(HEIGHT - 2*self.r - 2) or self.y<(2*self.r + 2):
+        if self.y>(HEIGHT - ABOARD) or self.y<(ABOARD):
             self.vy *= -1
 
         self.vy += 0
@@ -96,7 +101,9 @@ class Gun:
         self.f2_on = 0
         self.an = 1
         self.color = GREY
-
+        self.x = gun_x
+        self.y = gun_y
+        self.r = R_GUN
     def fire2_start(self, event):
         self.f2_on = 1
 
@@ -110,7 +117,7 @@ class Gun:
         bullet += 1
         new_ball = Ball(self.screen)
         new_ball.r += 5
-        self.an = math.atan2((event.pos[1]-new_ball.y), (event.pos[0]-new_ball.x))
+        self.an = math.atan2((event[1]-new_ball.y), (event[0]-new_ball.x))
         new_ball.vx = self.f2_power * math.cos(self.an)
         new_ball.vy = - self.f2_power * math.sin(self.an)
         balls.append(new_ball)
@@ -120,15 +127,19 @@ class Gun:
     def targetting(self, event):
         """Прицеливание. Зависит от положения мыши."""
         if event:
-            self.an = math.atan((event.pos[1]-450) / (event.pos[0]-20))
+            self.an = math.atan((event[1]-self.y) / (event[0]-self.x))
         if self.f2_on:
             self.color = RED
         else:
             self.color = GREY
 
     def draw(self):
-        return 0
-        # FIXIT don't know how to do it
+        pygame.draw.circle(
+            self.screen,
+            self.color,
+            (self.x, self.y),
+            self.r
+        )
 
     def power_up(self):
         if self.f2_on:
@@ -144,7 +155,7 @@ class Target:
         self.x = rnd(600, 700)
         self.y = rnd(300, 500)
         self.r = rnd(2, 50)
-        self.color = RED
+        self.color = TARGET_COLOR
         self.points = 0
         self.live = 1
         self.screen = screen
@@ -156,7 +167,7 @@ class Target:
     def move(self):
         if self.x>(WIDTH - 2*self.r - 2) or self.x<(2*self.r + 2):
             self.vx *= -1
-        if self.y>(HEIGHT - 2*self.r - 2) or self.y<(2*self.r + 2):
+        if self.y>(HEIGHT - ABOARD) or self.y<(ABOARD):
             self.vy *= -1
 
         r = ((self.x - X0) ** 2 + (self.y - Y0) ** 2)**0.5
@@ -198,21 +209,26 @@ while not finished:
         target.draw()
     for b in balls:
         b.draw()
+    pygame.draw.rect(screen, SAND, (0, HEIGHT - ABOARD, WIDTH, ABOARD))
     pygame.display.update()
 
     clock.tick(FPS)
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             finished = True
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            gun.fire2_start(event)
-        elif event.type == pygame.MOUSEBUTTONUP:
-            gun.fire2_end(event)
         elif event.type == pygame.MOUSEMOTION:
-            gun.targetting(event)
+            gun.targetting(pygame.mouse.get_pos())
+
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_DOWN]:
+        gun.fire2_start(pygame.mouse.get_pos())
+    if keys[pygame.K_UP]:
+        gun.fire2_end(pygame.mouse.get_pos())
 
     for target in targets:
         target.move()
+
     for b in balls:
         b.move()
         if b.y > HEIGHT + b.r:
@@ -223,5 +239,6 @@ while not finished:
                 target.hit()
                 target.__init__(screen)
     gun.power_up()
+
 
 pygame.quit()
